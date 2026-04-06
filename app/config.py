@@ -7,10 +7,16 @@ _base_config = SettingsConfigDict(
 )
 
 class DatabaseSettings(BaseSettings):
-    DATABASE_URL: str
+    POSTGRES_SERVER:str
+    POSTGRES_PORT:int
+    POSTGRES_USER:str
+    POSTGRES_PASSWORD:str
+    POSTGRES_NAME:str
 
     model_config = _base_config
 
     @property
     def POSTGRES_URL(self):
-        return self.DATABASE_URL
+        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_NAME}"
+
+db_settings = DatabaseSettings()
