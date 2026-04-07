@@ -1,7 +1,7 @@
 from uuid import UUID, uuid4
 from sqlalchemy.dialects import postgresql
 from sqlmodel import Column, Field
-from app.models.user import Base
+from app.models.base import Base
 
 class Message(Base, table=True):
     __tablename__ = "message"

@@ -1,20 +1,10 @@
-from datetime import datetime, timezone
 from uuid import UUID, uuid4
 from pydantic import EmailStr
 from sqlalchemy.dialects import postgresql
-from sqlmodel import Column, Field, SQLModel
+from sqlmodel import Column, Field
 
-class Base(SQLModel):
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        nullable=False
-    )
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        nullable=False
-    )
-    created_by: UUID | None = Field(default=None, foreign_key="user.id")
-    updated_by: UUID | None = Field(default=None, foreign_key="user.id")
+from app.models.base import Base
+
 
 class User(Base, table=True):
     __tablename__="user"
