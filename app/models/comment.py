@@ -1,17 +1,18 @@
-
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from sqlalchemy.dialects import postgresql
 from sqlmodel import Column, Field, Relationship
-from .base import Base
-from .user import User
-from .listing import Listing
+
+from app.models.base import Base
+from app.models.listing import Listing
+from app.models.user import User
+
 
 class Comment(Base, table=True):
-    __tablename__="comment"
+    __tablename__ = "comment"
 
-    id:UUID = Field(
+    id: UUID = Field(
         sa_column=Column(
             postgresql.UUID,
             primary_key=True,
@@ -19,17 +20,20 @@ class Comment(Base, table=True):
         )
     )
 
-    timestamp:datetime = Field(default=datetime.now(timezone.utc))
-    content:str = Field(max_length=250)
-    
-    author_id:UUID = Field(foreign_key="user.id")
-    author:User = Relationship(
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    content: str = Field(max_length=250)
+
+    user_fk: UUID = Field(foreign_key="user.id")
+    author: User = Relationship(
         back_populates="comments",
-        sa_relationship_kwargs={"lazy": "selectin"}
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+            "foreign_keys": "[Comment.user_fk]",
+        },
     )
 
-    listing_id:UUID = Field(foreign_key="listing.id")
-    listing:Listing = Relationship(
+    listing_fk: UUID = Field(foreign_key="listing.id")
+    listing: Listing = Relationship(
         back_populates="comments",
-        sa_relationship_kwargs={"lazy": "selectin"}
+        sa_relationship_kwargs={"lazy": "selectin"},
     )

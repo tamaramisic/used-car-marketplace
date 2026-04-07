@@ -1,13 +1,16 @@
 from uuid import UUID, uuid4
+
 from pydantic import EmailStr
 from sqlalchemy.dialects import postgresql
-from sqlmodel import Column, Field
+from sqlmodel import Column, Field, Relationship
 
 from app.models.base import Base
-
+from .message import Message
+from .comment import Comment
+from .listing import Listing
 
 class User(Base, table=True):
-    __tablename__="user"
+    __tablename__ = "user"
 
     id: UUID = Field(
         sa_column=Column(
@@ -21,3 +24,33 @@ class User(Base, table=True):
     email: EmailStr = Field(unique=True, index=True)
     full_name: str = Field(max_length=64)
     phone: str | None = None
+
+    comments: list[Comment] = Relationship(
+        back_populates="author",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+        },
+    )
+
+    listings: list[Listing] = Relationship(
+        back_populates="seller",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+        },
+    )
+
+    sent_messages: list[Message] = Relationship(
+        back_populates="sender",
+        sa_relationship_kwargs={
+            "foreign_keys": "[Message.sender_fk]",
+            "lazy": "selectin",
+        },
+    )
+
+    received_messages: list["Message"] = Relationship(
+        back_populates="receiver",
+        sa_relationship_kwargs={
+            "foreign_keys": "[Message.receiver_fk]",
+            "lazy": "selectin",
+        },
+    )

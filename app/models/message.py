@@ -1,7 +1,11 @@
 from uuid import UUID, uuid4
+
 from sqlalchemy.dialects import postgresql
-from sqlmodel import Column, Field
+from sqlmodel import Column, Field, Relationship
+
 from app.models.base import Base
+from app.models.user import User
+
 
 class Message(Base, table=True):
     __tablename__ = "message"
@@ -14,7 +18,23 @@ class Message(Base, table=True):
         )
     )
 
-    sender_id: UUID = Field(foreign_key="user.id", nullable=False)
-    receiver_id: UUID = Field(foreign_key="user.id", nullable=False)
+    sender_fk: UUID = Field(foreign_key="user.id", nullable=False)
+    sender: User = Relationship(
+        back_populates="sent_messages",
+        sa_relationship_kwargs={
+            "foreign_keys": "[Message.sender_fk]",
+            "lazy": "selectin",
+        },
+    )
+
+    receiver_fk: UUID = Field(foreign_key="user.id", nullable=False)
+    receiver: User = Relationship(
+        back_populates="received_messages",
+        sa_relationship_kwargs={
+            "foreign_keys": "[Message.receiver_fk]",
+            "lazy": "selectin",
+        },
+    )
+
     content: str = Field(nullable=False)
     is_read: bool = Field(default=False)
