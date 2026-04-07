@@ -4,8 +4,8 @@ from sqlalchemy import Column, Text
 from sqlalchemy.dialects import postgresql
 from sqlmodel import Field, Relationship
 
-from app.models.base import Base
-from app.models.user import User
+from .base import Base
+from .user import User
 from .comment import Comment
 
 

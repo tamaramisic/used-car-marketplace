@@ -4,9 +4,8 @@ from uuid import UUID, uuid4
 from sqlalchemy.dialects import postgresql
 from sqlmodel import Column, Field, Relationship
 
-from app.models.base import Base
-from app.models.listing import Listing
-from app.models.user import User
+from .base import Base
+from .user import User
 
 
 class Comment(Base, table=True):
@@ -33,7 +32,7 @@ class Comment(Base, table=True):
     )
 
     listing_fk: UUID = Field(foreign_key="listing.id")
-    listing: Listing = Relationship(
+    listing: "Listing" = Relationship(
         back_populates="comments",
         sa_relationship_kwargs={"lazy": "selectin"},
     )

@@ -3,8 +3,8 @@ from uuid import UUID, uuid4
 from sqlalchemy.dialects import postgresql
 from sqlmodel import Column, Field, Relationship
 
-from app.models.base import Base
-from app.models.user import User
+from .base import Base
+from .user import User
 
 
 class Message(Base, table=True):
