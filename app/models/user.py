@@ -6,21 +6,14 @@ from sqlmodel import Column, Field, SQLModel
 
 class Base(SQLModel):
     created_at: datetime = Field(
-        sa_column=Column(
-            postgresql.TIMESTAMP,
-            default=datetime.now(timezone.utc),
-        )
+        default_factory=lambda: datetime.now(timezone.utc),
+        nullable=False
     )
-
     updated_at: datetime = Field(
-        sa_column=Column(
-            postgresql.TIMESTAMP,
-            default=datetime.now(timezone.utc),
-        )
+        default_factory=lambda: datetime.now(timezone.utc),
+        nullable=False
     )
-
     created_by: UUID | None = Field(default=None, foreign_key="user.id")
-
     updated_by: UUID | None = Field(default=None, foreign_key="user.id")
 
 class User(Base, table=True):
