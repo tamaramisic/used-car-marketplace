@@ -9,6 +9,7 @@ from alembic import context
 
 from sqlmodel import SQLModel
 from app.models.user import User
+from app.models.message import Message
 
 from app.config import db_settings
 
