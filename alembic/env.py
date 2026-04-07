@@ -11,6 +11,7 @@ from sqlmodel import SQLModel
 from app.models.user import User
 from app.models.message import Message
 from app.models.listing import Listing
+from app.models.comment import Comment
 
 from app.config import db_settings
 
