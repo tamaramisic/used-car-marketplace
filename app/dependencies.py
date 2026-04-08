@@ -19,7 +19,7 @@ async def get_listing_repo(session: SessionDep) -> ListingRepository:
 ListingRepositoryDep = Annotated[ListingRepository, Depends(get_listing_repo)]
 
 # listing service dependency
-async def get_listing_service(repo: Annotated[ListingRepository, Depends(get_listing_repo)]) -> ListingService:
+async def get_listing_service(repo: ListingRepositoryDep) -> ListingService:
     return ListingService(repo)
 
 ListingServiceDep = Annotated[ListingService, Depends(get_listing_service)]
