@@ -20,7 +20,6 @@ class Message(Base, table=True):
 
     sender_fk: UUID = Field(foreign_key="user.id", nullable=False)
     sender: User = Relationship(
-        back_populates="sent_messages",
         sa_relationship_kwargs={
             "foreign_keys": "[Message.sender_fk]",
             "lazy": "selectin",
@@ -29,7 +28,6 @@ class Message(Base, table=True):
 
     receiver_fk: UUID = Field(foreign_key="user.id", nullable=False)
     receiver: User = Relationship(
-        back_populates="received_messages",
         sa_relationship_kwargs={
             "foreign_keys": "[Message.receiver_fk]",
             "lazy": "selectin",
