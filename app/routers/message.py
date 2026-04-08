@@ -3,12 +3,12 @@ from uuid import UUID
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.schemas.message import MessageCreate, MessageResponse
+from app.schemas.message import MessageCreate, MessageUpdate, MessageResponse
 from app.services.message import MessageService
 from app.dependencies import get_session, get_current_user
 
 
-router = APIRouter(prefix="/messages", tags=["Messages"])
+router = APIRouter(prefix="/messages")
 
 
 @router.post("/", response_model=MessageResponse)
@@ -38,6 +38,19 @@ async def get_conversation(
     )
 
 
+@router.get("/single/{message_id}", response_model=MessageResponse)
+async def get_message(
+    message_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    current_user = Depends(get_current_user),
+):
+    return await MessageService.get_message(
+        session=session,
+        message_id=message_id,
+        user_id=current_user.id,
+    )
+
+
 @router.patch("/{message_id}/read")
 async def mark_as_read(
     message_id: UUID,
@@ -49,6 +62,7 @@ async def mark_as_read(
         message_id=message_id,
         user_id=current_user.id
     )
+
 
 @router.put("/{message_id}", response_model=MessageResponse)
 async def update_message(
@@ -78,16 +92,3 @@ async def delete_message(
     )
 
     return {"success": success}
-
-
-@router.get("/single/{message_id}", response_model=MessageResponse)
-async def get_message(
-    message_id: UUID,
-    session: AsyncSession = Depends(get_session),
-    current_user = Depends(get_current_user),
-):
-    return await MessageService.get_message(
-        session=session,
-        message_id=message_id,
-        user_id=current_user.id,
-    )

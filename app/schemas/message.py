@@ -14,8 +14,8 @@ class MessageUpdate(BaseModel):
 
 class MessageResponse(MessageBase):
     id: UUID
-    sender_id: UUID
-    receiver_id: UUID
+    sender_fk: UUID
+    receiver_fk: UUID
     is_read: bool
     created_at: datetime
     updated_at: datetime
