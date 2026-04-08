@@ -1,13 +1,11 @@
-from typing import Type, List
-
+from typing import Generic, Type, List
+from uuid import UUID
 from sqlalchemy import select
-
-from .base_repository_protocol import BaseRepositoryProtocol
 from .base_repository_protocol import T
 from ..dependencies import SessionDep
 
 
-class BaseRepository(BaseRepositoryProtocol[T]):
+class BaseRepository(Generic[T]):
     def __init__(self, model: Type[T], db: SessionDep):
         self.model = model
         self.db = db
@@ -16,17 +14,17 @@ class BaseRepository(BaseRepositoryProtocol[T]):
         result = await self.db.execute(select(self.model))
         return list(result.scalars().all())
 
-    async def find_by(self, obj_id: int) -> T | None:
+    async def find_by(self, obj_id: UUID) -> T | None:
         return await self.db.get(self.model, obj_id)
 
-    async def save_or_update(self, model: T) -> T | None:
-        self.db.add(model)
+    async def save_or_update(self, entity: T) -> T | None:
+        self.db.add(entity)
         await self.db.commit()
-        await self.db.refresh(model)
-        return T
+        await self.db.refresh(entity)
+        return entity
 
-    async def delete_by_id(self, obj_id: int):
+    async def delete_by_id(self, obj_id: UUID):
         obj = await self.db.get(self.model, obj_id)
         if obj:
-            await self.db.delete(obj)
+            self.db.delete(obj)
             await self.db.commit()
