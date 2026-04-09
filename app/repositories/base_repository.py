@@ -1,12 +1,13 @@
 from typing import Generic, Type, List
 from uuid import UUID
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from .base_repository_protocol import T, BaseRepositoryProtocol
-from ..dependencies import SessionDep
 
 
 class BaseRepository(Generic[T], BaseRepositoryProtocol[T]):
-    def __init__(self, model: Type[T], db: SessionDep):
+    def __init__(self, model: Type[T], db: AsyncSession):
         self.model = model
         self.db = db
 
