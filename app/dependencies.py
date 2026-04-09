@@ -8,12 +8,16 @@ from app.repositories.listing import ListingRepository
 from app.repositories.message import MessageRepository
 from app.services.listing import ListingService
 from app.services.message import MessageService
+from .models.user import User
 
 from .repositories.comment import CommentRepository
+from .security import verify_token, map_token_to_user
 from .services.comment import CommentService
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
+
+############LISTING DEPENDENCIES###########
 # listing repository dependency
 async def get_listing_repo(session: SessionDep) -> ListingRepository:
     return ListingRepository(session)
@@ -27,6 +31,7 @@ async def get_listing_service(repo: ListingRepositoryDep) -> ListingService:
 ListingServiceDep = Annotated[ListingService, Depends(get_listing_service)]
 
 #################################################
+
 #######COMMENT DEPENDENCIES#######
 
 def get_comment_repo(session: SessionDep):
@@ -41,6 +46,8 @@ CommentServiceDep = Annotated[CommentService, Depends(get_comment_service)]
 
 #################################################
 
+#######MESSAGE DEPENDENCIES#######
+
 # message repository dependency
 async def get_message_repo(session: SessionDep) -> MessageRepository:
     return MessageRepository(session)
@@ -52,3 +59,12 @@ async def get_message_service(repo: MessageRepositoryDep) -> MessageService:
     return MessageService(repo)
 
 MessageServiceDep = Annotated[MessageService, Depends(get_message_service)]
+
+#################################################
+
+
+#######CURRENT USER#######
+async def get_current_user(payload: dict = Depends(verify_token)) -> User:
+    return map_token_to_user(payload)
+
+CurrentUserDep = Annotated[User, Depends(get_current_user)]

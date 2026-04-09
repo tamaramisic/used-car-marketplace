@@ -1,4 +1,3 @@
-from telnetlib import KERMIT
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _base_config = SettingsConfigDict(

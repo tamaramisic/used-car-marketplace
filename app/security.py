@@ -6,6 +6,7 @@ from app.config import keycloak_settings
 from fastapi import HTTPException, status, Depends
 from pprint import pprint
 
+from app.models.user import User
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(authorizationUrl=keycloak_settings.AUTH_URL, tokenUrl=keycloak_settings.TOKEN_URL, scopes={'openid': 'OpenID Connect', 'profile': 'User profile'})
 
@@ -62,3 +63,12 @@ async def verify_token(token: str=Depends(oauth2_scheme)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token has expired!', headers={'WWW-Authenticate': 'Bearer'})
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='An error occurred...', headers={'WWW-Authenticate': 'Bearer'})
+
+
+def map_token_to_user(payload: dict) -> User:
+    return User(
+        id=payload.get("sub"),
+        username=payload.get("preferred_username"),
+        email=payload.get("email"),
+        roles=payload.get("realm_access", {}).get("roles", [])
+    )
