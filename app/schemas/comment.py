@@ -3,11 +3,11 @@ from uuid import UUID
 from pydantic import BaseModel
 
 class BaseComment(BaseModel):
-    timestamp: datetime
     content: str
 
 class CommentRead(BaseComment):
-    id: UUID
+    comment_id: UUID
+    author_id: UUID
 
 class CommentCreate(BaseComment):
     pass
