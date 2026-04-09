@@ -11,7 +11,7 @@ from app.schemas.listing.listing_update import ListingUpdate
 
 router = APIRouter(prefix="/listing")
 
-@router.get("/all", response_model=List[ListingRead])
+@router.get("/", response_model=List[ListingRead])
 async def find_all(listing_service: ListingServiceDep):
     list_of_listings = await listing_service.find_all()
     return list_of_listings
@@ -28,7 +28,7 @@ async def find_by_id(listing_id: UUID, listing_service: ListingServiceDep):
                             )
     return listing
 
-@router.post("/save", response_model=ListingRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ListingRead, status_code=status.HTTP_201_CREATED)
 async def save(listing: ListingSave, listing_service: ListingServiceDep):
     return await listing_service.create(listing)
 
@@ -43,6 +43,7 @@ async def update(listing: ListingUpdate, listing_id: UUID, listing_service: List
                 "listing_id": str(listing_id),
             },
         )
+    return listing_updated
 
 
 @router.delete("/{listing_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -10,7 +10,7 @@ class BaseRepositoryProtocol(Protocol[T]):
     async def find_by(self, obj_id: UUID) -> T | None:
         ...
 
-    async def create(self, model: T) -> T | None:
+    async def create(self, model: T) -> T:
         ...
 
     async def update(self, obj_id: UUID, update_data: dict) -> T | None:

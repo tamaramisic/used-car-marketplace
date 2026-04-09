@@ -1,11 +1,11 @@
 from typing import Generic, Type, List
 from uuid import UUID
 from sqlalchemy import select
-from .base_repository_protocol import T
+from .base_repository_protocol import T, BaseRepositoryProtocol
 from ..dependencies import SessionDep
 
 
-class BaseRepository(Generic[T]):
+class BaseRepository(Generic[T], BaseRepositoryProtocol[T]):
     def __init__(self, model: Type[T], db: SessionDep):
         self.model = model
         self.db = db
@@ -17,7 +17,7 @@ class BaseRepository(Generic[T]):
     async def find_by(self, obj_id: UUID) -> T | None:
         return await self.db.get(self.model, obj_id)
 
-    async def create(self, model: T) -> T | None:
+    async def create(self, model: T) -> T:
         self.db.add(model)
         await self.db.commit()
         await self.db.refresh(model)
