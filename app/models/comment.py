@@ -30,3 +30,5 @@ class Comment(Base, table=True):
             "foreign_keys": "[Comment.user_fk]",
         },
     )
+
+    listing_fk: UUID = Field(foreign_key="listing.id")
