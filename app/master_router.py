@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .routers import comment, listing, message
+from app.routers import comment, listing, message
 
 master_router = APIRouter()
 
