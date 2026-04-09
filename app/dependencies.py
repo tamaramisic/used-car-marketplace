@@ -26,10 +26,6 @@ async def get_listing_service(repo: ListingRepositoryDep) -> ListingService:
 
 ListingServiceDep = Annotated[ListingService, Depends(get_listing_service)]
 
-# message repository dependency
-async def get_message_repo(session: SessionDep) -> MessageRepository:
-    return MessageRepository(session)
-
 #################################################
 #######COMMENT DEPENDENCIES#######
 
@@ -44,6 +40,11 @@ def get_comment_service(repo: CommentRepoDep):
 CommentServiceDep = Annotated[CommentService, Depends(get_comment_service)]
 
 #################################################
+
+# message repository dependency
+async def get_message_repo(session: SessionDep) -> MessageRepository:
+    return MessageRepository(session)
+
 MessageRepositoryDep = Annotated[MessageRepository, Depends(get_message_repo)]
 
 # message service dependency
