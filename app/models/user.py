@@ -3,7 +3,10 @@ from uuid import UUID, uuid4
 from pydantic import EmailStr
 from sqlalchemy.dialects import postgresql
 from sqlmodel import Column, Field, Relationship
-from app.models.listing import Listing
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.listing import Listing
 
 from .base import Base
 
