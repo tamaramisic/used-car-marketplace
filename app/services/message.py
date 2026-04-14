@@ -1,12 +1,7 @@
-from uuid import UUID
-from fastapi import HTTPException
-
-from app.models.message import Message
 from app.repositories.message import MessageRepository
 
 
 class MessageService:
-
     def __init__(self, repo: MessageRepository):
         self.repo = repo
 

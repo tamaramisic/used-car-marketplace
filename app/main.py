@@ -7,12 +7,19 @@ app = FastAPI()
 
 app.include_router(master_router)
 
-app.swagger_ui_init_oauth = {'clientId': 'used-car-backend', 'appName': 'Keycloak Login', 'usePkceWithAuthorizationCodeGrant': True, 'scopes': 'openid profile'}
+app.swagger_ui_init_oauth = {
+    "clientId": "used-car-backend",
+    "appName": "Keycloak Login",
+    "usePkceWithAuthorizationCodeGrant": True,
+    "scopes": "openid profile",
+}
+
 
 @app.get("/")
 async def health_check():
     return {"status": "ok"}
 
-@app.get('/protected')
-async def protected_method(payload: dict=Depends(verify_token)):
-    return {'user': payload.get('preferred_username'), 'sub': payload.get('sub')}
+
+@app.get("/protected")
+async def protected_method(payload: dict = Depends(verify_token)):
+    return {"user": payload.get("preferred_username"), "sub": payload.get("sub")}

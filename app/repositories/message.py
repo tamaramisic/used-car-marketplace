@@ -1,15 +1,10 @@
-from uuid import UUID
-from typing import List
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
 
 from app.models.message import Message
 from app.repositories.base_repository import BaseRepository
 
 
 class MessageRepository(BaseRepository[Message]):
-
     def __init__(self, db: AsyncSession):
         super().__init__(Message, db)
 

@@ -45,3 +45,5 @@ uvloop
 watchfiles
 websockets
 httpx
+pre-commit
+ruff

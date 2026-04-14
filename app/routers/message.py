@@ -1,30 +1,23 @@
-from fastapi import APIRouter, Depends
-from uuid import UUID
-
-from sqlmodel.ext.asyncio.session import AsyncSession
-
-from app.schemas.message import MessageCreate, MessageUpdate, MessageResponse
-from app.services.message import MessageService
-from app.dependencies import MessageServiceDep
+from fastapi import APIRouter
 
 
 router = APIRouter(prefix="/messages")
 
 
-#response = MessageResponse
-#request = MessageCreate
+# response = MessageResponse
+# request = MessageCreate
 #
 # @router.post("/", response_model=MessageResponse)
 # async def send_message(
 #     body: MessageCreate,
 #     service: MessageServiceDep,
-    # current_user = Depends(get_current_user),
+# current_user = Depends(get_current_user),
 # ):
-    # return await service.send_message(
-    #     sender_id=current_user.id,
-    #     receiver_id=body.receiver_id,
-    #     content=body.content
-    # )
+# return await service.send_message(
+#     sender_id=current_user.id,
+#     receiver_id=body.receiver_id,
+#     content=body.content
+# )
 
 
 # @router.get("/{user_id}", response_model=list[MessageResponse])

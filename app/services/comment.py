@@ -12,12 +12,14 @@ class CommentService:
 
     async def find_comment_by_id(self, id: UUID) -> Comment:
         return await self.repo.find_by(id)
-    
+
     async def create_comment(self, comment: Comment) -> Comment:
         return await self.repo.create(comment)
 
-    async def update_comment(self, comment_id: UUID, new_comment: dict) -> Comment | None:
+    async def update_comment(
+        self, comment_id: UUID, new_comment: dict
+    ) -> Comment | None:
         return await self.repo.update(comment_id, new_comment)
-    
+
     async def delete_comment(self, id: UUID) -> bool:
         return await self.repo.delete_by_id(id)
