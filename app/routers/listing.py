@@ -1,15 +1,23 @@
-from typing import List
+from typing import List, Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 
-from app.core.dependencies import ListingServiceDep
+from app.core.dependencies import ListingRepositoryDep
 from app.schemas.listing.listing_read import ListingRead
 from app.schemas.listing.listing_save import ListingSave
 from app.schemas.listing.listing_update import ListingUpdate
+from app.services.listing import ListingService
 
-router = APIRouter(prefix="/listing")
+router = APIRouter(prefix="/listings")
+
+
+def get_listing_service(repo: ListingRepositoryDep) -> ListingService:
+    return ListingService(repo)
+
+
+ListingServiceDep = Annotated[ListingService, Depends(get_listing_service)]
 
 
 @router.get("/", response_model=List[ListingRead])
