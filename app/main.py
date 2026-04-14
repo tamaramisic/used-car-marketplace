@@ -1,6 +1,6 @@
 from fastapi import Depends, FastAPI
-from app.security import verify_token
-from app.master_router import master_router
+from app.security.security import verify_token
+from app.routers.master_router import master_router
 
 
 app = FastAPI()
@@ -24,4 +24,5 @@ async def health_check():
 async def protected_method(payload: dict = Depends(verify_token)):
     return {"user": payload.get("preferred_username"), "sub": payload.get("sub")}
 
-#provera pre-commit
+
+# provera pre-commit

@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from app.models.listing import Listing
+from app.repositories.models.listing import Listing
 from app.repositories.listing import ListingRepository
 from app.schemas.listing.listing_save import ListingSave
 from app.schemas.listing.listing_update import ListingUpdate
@@ -24,11 +24,21 @@ class ListingService:
     async def update(
         self, listing_id: UUID, listing_schema: ListingUpdate
     ) -> Listing | None:
+        db_obj = await self.repo.find_by(listing_id)
+        if not db_obj:
+            return None
+
         update_data = listing_schema.model_dump(exclude_unset=True)
-        return await self.repo.update(listing_id, update_data)
+        for key, value in update_data.items():
+            setattr(db_obj, key, value)
+        return await self.repo.update(db_obj)
 
     async def delete_by_id(self, listing_id: UUID) -> bool:
-        return await self.repo.delete_by_id(listing_id)
+        listing = await self.repo.find_by(listing_id)
+        if not listing:
+            return False
+        else:
+            return await self.repo.delete_by_id(listing)
 
 
 #     TODO: add service for checking if logged in user is the user in listing, returns bool(if is then can delete listing)

@@ -1,6 +1,6 @@
 from uuid import UUID
 from ..repositories.comment import CommentRepository
-from ..models.comment import Comment
+from app.repositories.models.comment import Comment
 
 
 class CommentService:

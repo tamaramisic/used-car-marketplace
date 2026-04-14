@@ -6,7 +6,7 @@ from sqlmodel import Column, Field, Relationship
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.models.listing import Listing
+    from app.repositories.models.listing import Listing
 
 from .base import Base
 
@@ -22,8 +22,12 @@ class User(Base, table=True):
         )
     )
 
-    username: str = Field(max_length=64)
-    email: EmailStr = Field(unique=True, index=True)
+    keycloak_id: UUID = Field(
+        sa_column=Column(postgresql.UUID, unique=True, index=True, nullable=False)
+    )
+
+    username: str = Field(max_length=64, nullable=False)
+    email: EmailStr = Field(unique=True, index=True, nullable=False)
     full_name: str = Field(max_length=64)
     phone: str | None = None
 

@@ -3,16 +3,16 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_session
+from app.repositories.database import get_session
 from app.repositories.listing import ListingRepository
 from app.repositories.message import MessageRepository
 from app.services.listing import ListingService
 from app.services.message import MessageService
-from .models.user import User
+from app.repositories.models.user import User
 
-from .repositories.comment import CommentRepository
-from .security import verify_token, map_token_to_user
-from .services.comment import CommentService
+from app.repositories.comment import CommentRepository
+from app.security.security import verify_token, map_token_to_user
+from app.services.comment import CommentService
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 

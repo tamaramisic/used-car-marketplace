@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from starlette import status
 
-from app.dependencies import ListingServiceDep
+from app.core.dependencies import ListingServiceDep
 from app.schemas.listing.listing_read import ListingRead
 from app.schemas.listing.listing_save import ListingSave
 from app.schemas.listing.listing_update import ListingUpdate

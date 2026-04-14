@@ -2,11 +2,11 @@ from httpx import AsyncClient, HTTPError
 from jose import jwt, jwk
 from jose.exceptions import JWTError, ExpiredSignatureError
 from fastapi.security import OAuth2AuthorizationCodeBearer
-from app.config import keycloak_settings
+from app.core.config import keycloak_settings
 from fastapi import HTTPException, status, Depends
 from pprint import pprint
 
-from app.models.user import User
+from app.repositories.models.user import User
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
     authorizationUrl=keycloak_settings.AUTH_URL,

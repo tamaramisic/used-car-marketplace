@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.message import Message
+from app.repositories.models.message import Message
 from app.repositories.base_repository import BaseRepository
 
 

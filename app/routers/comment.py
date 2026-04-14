@@ -1,6 +1,6 @@
 from uuid import UUID
 from fastapi import APIRouter
-from ..dependencies import CommentServiceDep
+from app.core.dependencies import CommentServiceDep
 from ..schemas.comment import CommentRead
 
 router = APIRouter()
