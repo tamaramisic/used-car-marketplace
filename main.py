@@ -23,3 +23,5 @@ async def health_check():
 @app.get("/protected")
 async def protected_method(payload: dict = Depends(verify_token)):
     return {"user": payload.get("preferred_username"), "sub": payload.get("sub")}
+
+#provera pre-commit
