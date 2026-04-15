@@ -8,19 +8,23 @@ class MessageBase(BaseModel):
 
 
 class MessageCreate(MessageBase):
-    receiver_id: UUID
+    pass
+    # chat_id: UUID
 
 
 class MessageUpdate(BaseModel):
-    content: str | None
+    content: str | None = None
 
 
 class MessageResponse(MessageBase):
     id: UUID
-    sender_fk: UUID
-    receiver_fk: UUID
+    # sender_id: UUID
+    # chat_id: UUID
     is_read: bool
     created_at: datetime
     updated_at: datetime
 
-    model_config = {"from_attributes": True}
+
+class MessageReadResponse(BaseModel):
+    message_id: UUID
+    is_read: bool

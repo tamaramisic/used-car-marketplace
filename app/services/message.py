@@ -1,29 +1,18 @@
+from uuid import UUID
 from app.repositories.message import MessageRepository
+from app.repositories.models import Message
 
 
 class MessageService:
     def __init__(self, repo: MessageRepository):
         self.repo = repo
 
-    # async def send_message(
-    #     self,
-    #     sender_id: UUID,
-    #     receiver_id: UUID,
-    #     content: str
-    # ) -> Message:
-    #
-    #     if sender_id == receiver_id:
-    #         raise HTTPException(400, "You cannot send a message to yourself")
-    #
-    #     message = Message(
-    #         sender_fk=sender_id,
-    #         receiver_fk=receiver_id,
-    #         content=content,
-    #         created_by=sender_id,
-    #     )
-    #
-    #     return await self.repo.save_or_update(message)
-    #
+    async def send_message(
+        self, sender_id: UUID, chat_id: UUID, content: str
+    ) -> Message:
+        message = Message(sender_id=sender_id, chat_id=chat_id, content=content)
+        return await self.repo.create(message)
+
     # async def get_conversation(
     #     self,
     #     user_id: UUID,
