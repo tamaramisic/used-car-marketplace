@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 
-from app.core.dependencies import ListingRepositoryDep
+from app.core.dependencies import ListingRepositoryDep, CurrentUserDep
 from app.schemas.listing.listing_read import ListingRead
 from app.schemas.listing.listing_save import ListingSave
 from app.schemas.listing.listing_update import ListingUpdate
@@ -41,8 +41,13 @@ async def find_by_id(listing_id: UUID, listing_service: ListingServiceDep):
 
 
 @router.post("/", response_model=ListingRead, status_code=status.HTTP_201_CREATED)
-async def save(listing: ListingSave, listing_service: ListingServiceDep):
-    return await listing_service.create(listing)
+async def save(
+    listing: ListingSave,
+    listing_service: ListingServiceDep,
+    current_user: CurrentUserDep,
+):
+    listing_model = await listing_service.create(listing, current_user)
+    return ListingRead.model_validate(listing_model)
 
 
 @router.patch("/{listing_id}", response_model=ListingRead)

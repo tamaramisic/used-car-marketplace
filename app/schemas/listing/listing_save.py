@@ -1,10 +1,7 @@
-from uuid import UUID
-
 from pydantic import BaseModel, Field
 
 
 class ListingSave(BaseModel):
-    user_fk: UUID
     title: str = Field(max_length=64)
     description: str
     manufacturer: str = Field(max_length=128)

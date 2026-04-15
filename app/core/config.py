@@ -24,6 +24,8 @@ class KeycloakSettings(BaseSettings):
     KEYCLOAK_PORT: int
     KEYCLOAK_REALM_NAME: str
     KEYCLOAK_CLIENT_ID: str
+    ADMIN_CLIENT_ID: str
+    ADMIN_CLIENT_SECRET: str
     model_config = _base_config
 
     @property

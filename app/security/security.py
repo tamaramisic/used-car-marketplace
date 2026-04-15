@@ -98,3 +98,13 @@ def map_token_to_user(payload: dict) -> User:
         email=payload.get("email"),
         roles=payload.get("realm_access", {}).get("roles", []),
     )
+
+
+def is_admin(payload: dict) -> bool:
+    roles = payload.get("realm_access", {}).get("roles", [])
+    if "admin" not in roles:
+        raise HTTPException(
+            status_code=403, detail="Logged in user doesn't have access permissions."
+        )
+    else:
+        return True

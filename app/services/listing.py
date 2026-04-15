@@ -1,6 +1,7 @@
 from typing import List
 from uuid import UUID
 
+from app.repositories.models import User
 from app.repositories.models.listing import Listing
 from app.repositories.listing import ListingRepository
 from app.schemas.listing.listing_save import ListingSave
@@ -17,8 +18,9 @@ class ListingService:
     async def find_by(self, listing_id: UUID) -> Listing | None:
         return await self.repo.find_by(listing_id)
 
-    async def create(self, listing_schema: ListingSave) -> Listing:
+    async def create(self, listing_schema: ListingSave, current_user: User) -> Listing:
         listing_model = Listing(**listing_schema.model_dump())
+        listing_model.seller = current_user
         return await self.repo.create(listing_model)
 
     async def update(
