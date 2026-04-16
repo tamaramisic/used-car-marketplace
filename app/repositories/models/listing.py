@@ -2,8 +2,9 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import Column, Text
 from sqlalchemy.dialects import postgresql
-from sqlmodel import Field
+from sqlmodel import Field, Relationship
 
+from . import User
 from .base import Base
 
 
@@ -19,15 +20,15 @@ class Listing(Base, table=True):
     )
 
     user_fk: UUID = Field(foreign_key="user.id", nullable=False)
-    # seller: User = Relationship(
-    #     back_populates="listings",
-    #     sa_relationship_kwargs={
-    #         "lazy": "selectin",
-    #         "foreign_keys": "[User.id]",
-    #     },
-    # )
+    seller: User = Relationship(
+        back_populates="listings",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+            "foreign_keys": "[Listing.user_fk]",
+        },
+    )
 
-    title: str = Field(max_length=64)
+    title: str = Field(max_length=64, unique=True)
     description: str = Field(sa_column=Column(Text))
     manufacturer: str = Field(max_length=128)
     model: str = Field(max_length=64)

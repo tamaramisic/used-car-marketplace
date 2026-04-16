@@ -1,10 +1,14 @@
 from typing import List, Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from starlette import status
 
-from app.core.dependencies import ListingRepositoryDep, CurrentUserDep
+from app.core.dependencies import (
+    ListingRepositoryDep,
+    CurrentUserDep,
+    UserRepositoryDep,
+)
 from app.schemas.listing.listing_read import ListingRead
 from app.schemas.listing.listing_save import ListingSave
 from app.schemas.listing.listing_update import ListingUpdate
@@ -28,16 +32,7 @@ async def find_all(listing_service: ListingServiceDep):
 
 @router.get("/{listing_id}", response_model=ListingRead)
 async def find_by_id(listing_id: UUID, listing_service: ListingServiceDep):
-    listing = await listing_service.find_by(listing_id)
-    if not listing:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "message": "Listing with given id not found",
-                "listing_id": str(listing_id),
-            },
-        )
-    return listing
+    return await listing_service.find_by(listing_id)
 
 
 @router.post("/", response_model=ListingRead, status_code=status.HTTP_201_CREATED)
@@ -45,35 +40,27 @@ async def save(
     listing: ListingSave,
     listing_service: ListingServiceDep,
     current_user: CurrentUserDep,
+    user_repo: UserRepositoryDep,
 ):
-    listing_model = await listing_service.create(listing, current_user)
-    return ListingRead.model_validate(listing_model)
+    return await listing_service.create(listing, current_user, user_repo)
 
 
 @router.patch("/{listing_id}", response_model=ListingRead)
 async def update(
-    listing: ListingUpdate, listing_id: UUID, listing_service: ListingServiceDep
+    listing: ListingUpdate,
+    listing_id: UUID,
+    listing_service: ListingServiceDep,
+    current_user: CurrentUserDep,
+    user_repo: UserRepositoryDep,
 ):
-    listing_updated = await listing_service.update(listing_id, listing)
-    if not listing_updated:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "message": "Listing not found",
-                "listing_id": str(listing_id),
-            },
-        )
-    return listing_updated
+    return await listing_service.update(listing_id, listing, current_user, user_repo)
 
 
 @router.delete("/{listing_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_by_id(listing_id: UUID, listing_service: ListingServiceDep):
-    deleted = await listing_service.delete_by_id(listing_id)
-    if not deleted:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "message": "Listing not found",
-                "listing_id": str(listing_id),
-            },
-        )
+async def delete_by_id(
+    listing_id: UUID,
+    listing_service: ListingServiceDep,
+    current_user: CurrentUserDep,
+    user_repo: UserRepositoryDep,
+):
+    await listing_service.delete_by_id(listing_id, current_user, user_repo)
