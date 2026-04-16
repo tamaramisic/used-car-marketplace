@@ -38,8 +38,12 @@ def get_comment_repo(session: SessionDep):
 CommentRepoDep = Annotated[CommentRepository, Depends(get_comment_repo)]
 
 
-def get_comment_service(repo: CommentRepoDep):
-    return CommentService(repo)
+def get_comment_service(
+    comment_repo: CommentRepoDep,
+    listing_repo: ListingRepositoryDep,
+    user_repo: "UserRepositoryDep",
+):
+    return CommentService(comment_repo, listing_repo, user_repo)
 
 
 CommentServiceDep = Annotated[CommentService, Depends(get_comment_service)]

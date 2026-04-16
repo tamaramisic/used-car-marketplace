@@ -8,7 +8,7 @@ class BaseComment(BaseModel):
 
 class CommentRead(BaseComment):
     id: UUID
-    author_id: UUID
+    user_fk: UUID
     listing_fk: UUID
 
 

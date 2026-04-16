@@ -1,12 +1,16 @@
 from uuid import UUID
-from fastapi import APIRouter
-from app.core.dependencies import CommentServiceDep, CurrentUserDep
+from fastapi import APIRouter, Depends
+from app.core.dependencies import CommentServiceDep, CurrentUserDep, get_current_user
 from ..schemas.comment import BaseComment, CommentCreate, CommentRead
 
 router = APIRouter(tags=["Comment"])
 
 
-@router.get("/comments", response_model=CommentRead)
+@router.get(
+    "/comments",
+    response_model=list[CommentRead],
+    dependencies=[Depends(get_current_user)],
+)
 async def get_all_comments(service: CommentServiceDep):
     return await service.find_all_comments()
 
@@ -25,3 +29,10 @@ async def add_new_comment(
 ):
     comment = await service.create_comment(listing_id, req_body, user)
     return comment
+
+
+@router.delete("/comments/{comment_id}", response_model=bool)
+async def delete_comment(
+    comment_id: UUID, user: CurrentUserDep, service: CommentServiceDep
+):
+    return await service.delete_comment(comment_id, user)
