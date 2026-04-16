@@ -116,7 +116,7 @@ class ListingService:
         listing = await self.check_user_permission_for_listing(
             listing_id, current_user, user_repo
         )
-        return await self.repo.delete_by_id(listing)
+        return await self.repo.delete(listing)
 
     async def check_user_permission_for_listing(
         self, listing_id, current_user: User, user_repo: UserRepository

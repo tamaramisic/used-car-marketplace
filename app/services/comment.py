@@ -96,4 +96,4 @@ class CommentService:
                 detail="Comment can delete only its owner!",
             )
 
-        return await self.comment_repo.delete_by_id(comment)
+        return await self.comment_repo.delete(comment)
