@@ -6,13 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.database import get_session
 from app.repositories.listing import ListingRepository
 from app.repositories.message import MessageRepository
-from app.repositories.user import UserRepository
-from app.services.message import MessageService
-from app.repositories.models.user import User
-
+from app.repositories.chat import ChatRepository
 from app.repositories.comment import CommentRepository
-from app.security.security import verify_token, map_token_to_user
+from app.repositories.user import UserRepository
 from app.services.comment import CommentService
+from app.repositories.models.user import User
+from app.security.security import verify_token, map_token_to_user
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
@@ -24,13 +23,10 @@ async def get_listing_repo(session: SessionDep) -> ListingRepository:
 
 
 ListingRepositoryDep = Annotated[ListingRepository, Depends(get_listing_repo)]
-
-
 #################################################
 
+
 #######COMMENT DEPENDENCIES#######
-
-
 def get_comment_repo(session: SessionDep):
     return CommentRepository(session)
 
@@ -47,28 +43,35 @@ def get_comment_service(
 
 
 CommentServiceDep = Annotated[CommentService, Depends(get_comment_service)]
-
 #################################################
 
+
 #######MESSAGE DEPENDENCIES#######
-
-
 # message repository dependency
 async def get_message_repo(session: SessionDep) -> MessageRepository:
     return MessageRepository(session)
 
 
 MessageRepositoryDep = Annotated[MessageRepository, Depends(get_message_repo)]
-
-
-# message service dependency
-async def get_message_service(repo: MessageRepositoryDep) -> MessageService:
-    return MessageService(repo)
-
-
-MessageServiceDep = Annotated[MessageService, Depends(get_message_service)]
-
 #################################################
+
+
+#######CHAT DEPENDENCIES#######
+# message repository dependency
+async def get_chat_repo(session: SessionDep) -> ChatRepository:
+    return ChatRepository(session)
+
+
+ChatRepositoryDep = Annotated[ChatRepository, Depends(get_chat_repo)]
+#################################################
+
+
+#######USER DEPENDENCIES#######
+async def get_user_repo(session: SessionDep) -> UserRepository:
+    return UserRepository(session)
+
+
+UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repo)]
 
 
 #######CURRENT USER#######
@@ -77,10 +80,3 @@ async def get_current_user(payload: dict = Depends(verify_token)) -> User:
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
-
-
-async def get_user_repo(session: SessionDep) -> UserRepository:
-    return UserRepository(session)
-
-
-UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repo)]

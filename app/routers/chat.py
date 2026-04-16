@@ -1,92 +1,204 @@
 from uuid import UUID
+from typing import Annotated
+from fastapi import APIRouter, Depends
 
-from fastapi import APIRouter
+from app.core.dependencies import (
+    ChatRepositoryDep,
+    MessageRepositoryDep,
+    CurrentUserDep,
+)
+from app.schemas.user_read import UserRead
+from app.schemas.message import (
+    MessageResponse,
+    MessageCreate,
+    MessageUpdate,
+)
+from app.schemas.chat import (
+    ChatResponse,
+    ChatCreate,
+    ChatUpdate,
+    ChatUpdateRead,
+    ChatReadResponse,
+)
 
-from app.core.dependencies import MessageServiceDep, CurrentUserDep
-from app.schemas.message import MessageResponse, MessageCreate
+from app.services.message import MessageService
+from app.services.chat import ChatService
 
-router = APIRouter(prefix="/chat")
+router = APIRouter(prefix="/chats")
 
 
-@router.post("/create-message", response_model=MessageResponse)
-async def create_message(
-    message: MessageCreate,
-    chat_id: UUID,
-    service: MessageServiceDep,
-    user: CurrentUserDep,
+######### chat service dependency
+async def get_chat_service(repo: ChatRepositoryDep) -> ChatService:
+    return ChatService(repo)
+
+
+ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
+
+
+######### message service dependency
+async def get_message_service(repo: MessageRepositoryDep) -> MessageService:
+    return MessageService(repo)
+
+
+MessageServiceDep = Annotated[MessageService, Depends(get_message_service)]
+
+
+######### CHAT
+@router.post("/", response_model=ChatResponse)
+async def create_chat(
+    body: ChatCreate,
+    service: ChatServiceDep,
+    current_user: CurrentUserDep,
 ):
-    return await service.send_message(
-        sender_id=user.id, chat_id=chat_id, content=message.content
+    return await service.create_chat(
+        name=body.name,
+        user_id=current_user,
+        participant_ids=body.participant_ids,
     )
-    # chat id - docs - pass
 
 
-@router.get("/messages", response_model=list[MessageResponse])
-async def read_all_chat_messages(
-    chat_id: int, service: MessageServiceDep, user: CurrentUserDep
+@router.get("/", response_model=list[ChatResponse])
+async def get_chats(
+    service: ChatServiceDep,
+    current_user: CurrentUserDep,
 ):
-    pass
+    return await service.get_chats(
+        user_id=current_user.id,
+    )
 
 
-# @router.get("/{user_id}", response_model=list[MessageResponse])
-# async def get_conversation(
-#     user_id: UUID,
-#     service: MessageServiceDep,
-#     current_user = Depends(get_current_user),
-# ):
-#     return await MessageService.get_conversation(
-#         user_id=current_user.id,
-#         other_user_id=user_id
-#     )
-#
-#
-# @router.get("/single/{message_id}", response_model=MessageResponse)
-# async def get_message(
-#     message_id: UUID,
-#     service: MessageServiceDep,
-#     current_user = Depends(get_current_user),
-# ):
-#     return await MessageService.get_message(
-#         message_id=message_id,
-#         user_id=current_user.id,
-#     )
-#
-#
-# @router.patch("/{message_id}/read")
-# async def mark_as_read(
-#     message_id: UUID,
-#     service: MessageServiceDep,
-#     current_user = Depends(get_current_user),
-# ):
-#     return await MessageService.mark_as_read(
-#         message_id=message_id,
-#         user_id=current_user.id
-#     )
-#
-#
-# @router.put("/{message_id}", response_model=MessageResponse)
-# async def update_message(
-#     message_id: UUID,
-#     body: MessageUpdate,
-#     service: MessageServiceDep,
-#     current_user = Depends(get_current_user),
-# ):
-#     return await MessageService.update_message(
-#         message_id=message_id,
-#         user_id=current_user.id,
-#         content=body.content
-#     )
-#
-#
-# @router.delete("/{message_id}")
-# async def delete_message(
-#     message_id: UUID,
-#     service: MessageServiceDep,
-#     current_user = Depends(get_current_user),
-# ):
-#     success = await MessageService.delete_message(
-#         message_id=message_id,
-#         user_id=current_user.id,
-#     )
-#
-#     return {"success": success}
+@router.get("/{chat_id}", response_model=ChatResponse)
+async def get_chat(
+    chat_id: UUID,
+    service: ChatServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.get_chat(
+        chat_id=chat_id,
+        user_id=current_user.id,
+    )
+
+
+@router.put("/{chat_id}", response_model=ChatResponse)
+async def update_chat(
+    chat_id: UUID,
+    body: ChatUpdate,
+    service: ChatServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.update_chat(
+        chat_id=chat_id,
+        user_id=current_user.id,
+        name=body.name,
+    )
+
+
+@router.delete("/{chat_id}", response_model=ChatResponse)  # ONLY ADMIN
+async def delete_chat(
+    chat_id: UUID,
+    service: ChatServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.delete_chat(
+        chat_id=chat_id,
+        user_id=current_user.id,
+    )
+
+
+@router.post("/{chat_id}/read", response_model=ChatReadResponse)
+async def mark_chat_as_read(  # current user opens chat == current user read all messages in chat
+    chat_id: UUID,
+    body: ChatUpdateRead,
+    service: ChatServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.mark_chat_read(
+        chat_id=chat_id,
+        is_chat_read=body.is_chat_read,
+        user_id=current_user.id,
+    )
+
+
+######### MESSAGE
+@router.post("/{chat_id}/messages", response_model=MessageResponse)
+async def create_message_in_chat(
+    chat_id: UUID,
+    body: MessageCreate,
+    service: MessageServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.create_message_in_chat(
+        chat_id=chat_id,
+        sender_id=current_user.id,
+        content=body.content,
+    )
+
+
+@router.get("/{chat_id}/messages", response_model=list[MessageResponse])
+async def get_messages_in_chat(
+    chat_id: UUID, service: MessageServiceDep, current_user: CurrentUserDep
+):
+    return await service.get_messages_in_chat(
+        chat_id=chat_id,
+        sender_id=current_user.id,
+    )
+
+
+@router.get("/{chat_id}/messages/{message_id}", response_model=MessageResponse)
+async def get_message_in_chat(
+    chat_id: UUID,
+    message_id: UUID,
+    service: MessageServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.get_message_in_chat(
+        chat_id=chat_id,
+        message_id=message_id,
+        sender_id=current_user.id,
+    )
+
+
+@router.put("/{chat_id}/messages/{message_id}", response_model=MessageResponse)
+async def update_message_in_chat(
+    chat_id: UUID,
+    message_id: UUID,
+    body: MessageUpdate,
+    service: MessageServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.update_message_in_chat(
+        chat_id=chat_id,
+        message_id=message_id,
+        sender_id=current_user.id,
+        content=body.content,
+    )
+
+
+@router.delete(
+    "/{chat_id}/messages/{message_id}", response_model=MessageResponse
+)  # ONLY ADMIN
+async def delete_message_in_chat(
+    chat_id: UUID,
+    message_id: UUID,
+    service: MessageServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.delete_message_in_chat(
+        chat_id=chat_id,
+        message_id=message_id,
+        sender_id=current_user.id,
+    )
+
+
+@router.post("/{chat_id}/messages/{message_id}/read-by", response_model=list[UserRead])
+async def get_users_who_read_message(  # see who has read the message
+    chat_id: UUID,
+    message_id: UUID,
+    service: MessageServiceDep,
+    current_user: CurrentUserDep,
+):
+    return await service.get_users_who_read_message(
+        chat_id=chat_id,
+        message_id=message_id,
+        user_id=current_user.id,
+    )
