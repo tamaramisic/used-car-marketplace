@@ -39,4 +39,19 @@ class RoleService:
                 status_code=403, detail=f"Keycloak Permission Error: {e.error_message}"
             )
 
-        # delete role for user - keycloak_admin.delete_realm_roles_of_user()
+    def delete_role_for_user(self, keycloak_id: UUID, role_name: str):
+        try:
+            role_to_delete = self.keycloak_admin.get_realm_role(role_name)
+        except KeycloakGetError:
+            raise HTTPException(status_code=404, detail="Given role doesn't exist!")
+
+        try:
+            # we don't need to check if given role is assigned to user,
+            # because on front there will be a page for user with all his list of roles
+            # from which admin can choose which to delete
+            keycloak_admin.delete_realm_roles_of_user(keycloak_id, role_to_delete)
+
+        except KeycloakGetError as e:
+            raise HTTPException(
+                status_code=403, detail=f"Keycloak Permission Error: {e.error_message}"
+            )

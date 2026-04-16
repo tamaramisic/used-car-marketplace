@@ -33,4 +33,3 @@ class BaseRepository(Generic[T], BaseRepositoryProtocol[T]):
     async def delete(self, model: T):
         await self.db.delete(model)
         await self.db.commit()
-        return True

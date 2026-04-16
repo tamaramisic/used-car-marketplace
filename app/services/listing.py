@@ -99,11 +99,11 @@ class ListingService:
             setattr(listing, key, value)
         return await self.repo.update(listing)
 
-    async def delete_by_id(
+    async def delete(
         self, listing_id: UUID, current_user: User, user_repo: UserRepository
     ):
         """
-        Deletes listing with given listing id
+        Checks if Listing exists with a given id, then deletes it as an object
 
         Args:
             listing_id: UUID of Listing sql model

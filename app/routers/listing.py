@@ -14,7 +14,7 @@ from app.schemas.listing.listing_save import ListingSave
 from app.schemas.listing.listing_update import ListingUpdate
 from app.services.listing import ListingService
 
-router = APIRouter(prefix="/listings")
+router = APIRouter(prefix="/listings", tags=["Listing"])
 
 
 def get_listing_service(repo: ListingRepositoryDep) -> ListingService:
@@ -57,10 +57,10 @@ async def update(
 
 
 @router.delete("/{listing_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_by_id(
+async def delete(
     listing_id: UUID,
     listing_service: ListingServiceDep,
     current_user: CurrentUserDep,
     user_repo: UserRepositoryDep,
 ):
-    await listing_service.delete_by_id(listing_id, current_user, user_repo)
+    await listing_service.delete(listing_id, current_user, user_repo)
