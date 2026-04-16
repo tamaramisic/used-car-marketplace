@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from sqlalchemy.dialects import postgresql
-from sqlmodel import Column, Field
+from sqlmodel import Column, DateTime, Field
 
 from .base import Base
 
@@ -18,7 +18,11 @@ class Comment(Base, table=True):
         )
     )
 
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_type=DateTime(timezone=True),
+    )
+
     content: str = Field(max_length=250)
 
     user_fk: UUID = Field(foreign_key="user.id")

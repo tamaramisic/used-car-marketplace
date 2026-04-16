@@ -7,9 +7,11 @@ class BaseComment(BaseModel):
 
 
 class CommentRead(BaseComment):
-    comment_id: UUID
+    id: UUID
     author_id: UUID
+    listing_fk: UUID
 
 
 class CommentCreate(BaseComment):
-    pass
+    id: UUID
+    listing_fk: UUID
