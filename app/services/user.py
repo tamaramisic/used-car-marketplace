@@ -1,3 +1,5 @@
+from typing import List
+
 from app.repositories.models import User
 from app.repositories.user import UserRepository
 
@@ -13,3 +15,6 @@ class UserService:
             return await self.user_repository.create(current_user)
 
         return user
+
+    async def find_all(self) -> List[User]:
+        return await self.user_repository.find_all()

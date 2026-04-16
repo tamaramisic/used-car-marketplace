@@ -1,6 +1,6 @@
 from uuid import UUID, uuid4
 
-from pydantic import EmailStr
+from pydantic import EmailStr, ConfigDict
 from sqlalchemy.dialects import postgresql
 from sqlmodel import Column, Field, Relationship
 from typing import TYPE_CHECKING
@@ -38,3 +38,6 @@ class User(Base, table=True):
             "foreign_keys": "[Listing.user_fk]",
         },
     )
+
+    # for roles from keycloak
+    model_config = ConfigDict(extra="allow")

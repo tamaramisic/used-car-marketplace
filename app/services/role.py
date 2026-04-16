@@ -35,7 +35,8 @@ class RoleService:
                 )
 
         except KeycloakGetError as e:
-            # This will catch the 403 and tell you exactly what Keycloak said
             raise HTTPException(
                 status_code=403, detail=f"Keycloak Permission Error: {e.error_message}"
             )
+
+        # delete role for user - keycloak_admin.delete_realm_roles_of_user()

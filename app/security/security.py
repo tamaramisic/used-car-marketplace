@@ -92,13 +92,16 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
 
 
 def map_token_to_user(payload: dict) -> User:
-    return User(
+    user = User(
         keycloak_id=payload.get("sub"),
         username=payload.get("preferred_username"),
         email=payload.get("email"),
         full_name=payload.get("name"),
-        roles=payload.get("realm_access", {}).get("roles", []),
     )
+
+    user.roles = payload.get("realm_access", {}).get("roles", [])
+
+    return user
 
 
 def is_admin(payload: dict = Depends(verify_token)):

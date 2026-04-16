@@ -14,9 +14,24 @@ class ListingService:
         self.repo = repo
 
     async def find_all(self) -> List[Listing]:
+        """
+        Gets all listings as a list
+
+        Returns:
+        List of Listing sql model
+        """
         return await self.repo.find_all()
 
     async def find_by(self, listing_id: UUID) -> Listing:
+        """
+        Gets Listing with the given id
+
+        Args:
+            listing_id: UUID of Listing sql model
+
+        Returns:
+            Listing sql model
+        """
         listing = await self.repo.find_by(listing_id)
         if not listing:
             raise HTTPException(
@@ -28,6 +43,18 @@ class ListingService:
     async def create(
         self, listing_schema: ListingSave, current_user: User, user_repo: UserRepository
     ) -> Listing:
+        """
+        Checks if listing with the given title(unique) provided in schema
+        already exists and raises exception, if not creates new Listing
+
+        Args:
+            listing_schema: pydantic schema od Listing for save
+            current_user: user dependency
+            user_repo: user repository
+
+        Returns:
+            Listing sql model
+        """
         listing = await self.repo.find_by_title(listing_schema.title)
 
         if listing:
@@ -48,6 +75,20 @@ class ListingService:
         current_user: User,
         user_repo: UserRepository,
     ) -> Listing:
+        """
+        Sets manually each attribute in Listing as the provided
+        ones in schema and updates the Listing
+
+        Args:
+            listing_id: UUID of Listing sql model
+            listing_schema: pydantic schema of Listing for update
+            current_user: user dependency
+            user_repo: user repository
+
+        Returns:
+            Listing sql model
+        """
+
         listing = await self.check_user_permission_for_listing(
             listing_id, current_user, user_repo
         )
@@ -61,6 +102,17 @@ class ListingService:
     async def delete_by_id(
         self, listing_id: UUID, current_user: User, user_repo: UserRepository
     ):
+        """
+        Deletes listing with given listing id
+
+        Args:
+            listing_id: UUID of Listing sql model
+            current_user: user dependency
+            user_repo: user repository
+
+        Returns:
+            /
+        """
         listing = await self.check_user_permission_for_listing(
             listing_id, current_user, user_repo
         )
@@ -69,6 +121,19 @@ class ListingService:
     async def check_user_permission_for_listing(
         self, listing_id, current_user: User, user_repo: UserRepository
     ) -> Listing:
+        """
+        Method check if logged in user is the one who created listing,
+        if not then raise exception he can't delete other's listings,
+        and check if logged in user is admin, then he can delete any listing
+
+        Args:
+            listing_id: UUID of Listing sql model
+            current_user: user dependency
+            user_repo: user repository
+
+        Returns:
+            Listing sql model
+        """
         listing = await self.repo.find_by(listing_id)
 
         if not listing:
@@ -79,6 +144,10 @@ class ListingService:
         user = await user_repo.find_by_keycloak_id(current_user.keycloak_id)
 
         if listing.user_fk != user.id:
+            # admin can delete everyone's listings
+            if "admin" in current_user.roles:
+                return listing
+
             raise HTTPException(
                 status_code=403, detail="User can't delete other user's listings"
             )
