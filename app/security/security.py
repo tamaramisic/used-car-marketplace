@@ -93,18 +93,17 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
 
 def map_token_to_user(payload: dict) -> User:
     return User(
-        id=payload.get("sub"),
+        keycloak_id=payload.get("sub"),
         username=payload.get("preferred_username"),
         email=payload.get("email"),
+        full_name=payload.get("name"),
         roles=payload.get("realm_access", {}).get("roles", []),
     )
 
 
-def is_admin(payload: dict) -> bool:
+def is_admin(payload: dict = Depends(verify_token)):
     roles = payload.get("realm_access", {}).get("roles", [])
     if "admin" not in roles:
         raise HTTPException(
             status_code=403, detail="Logged in user doesn't have access permissions."
         )
-    else:
-        return True

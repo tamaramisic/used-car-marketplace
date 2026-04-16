@@ -2,11 +2,9 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import Column, Text
 from sqlalchemy.dialects import postgresql
-from sqlmodel import Field, Relationship
+from sqlmodel import Field
 
 from .base import Base
-from .user import User
-from .comment import Comment
 
 
 class Listing(Base, table=True):
@@ -21,12 +19,13 @@ class Listing(Base, table=True):
     )
 
     user_fk: UUID = Field(foreign_key="user.id", nullable=False)
-    seller: User = Relationship(
-        back_populates="listings",
-        sa_relationship_kwargs={
-            "lazy": "selectin",
-        },
-    )
+    # seller: User = Relationship(
+    #     back_populates="listings",
+    #     sa_relationship_kwargs={
+    #         "lazy": "selectin",
+    #         "foreign_keys": "[User.id]",
+    #     },
+    # )
 
     title: str = Field(max_length=64)
     description: str = Field(sa_column=Column(Text))
@@ -35,8 +34,8 @@ class Listing(Base, table=True):
     year: int = Field(lt=2100)
     kilometers: float
     price: float
-
-    comments: list[Comment] = Relationship(
-        back_populates="listing",
-        sa_relationship_kwargs={"lazy": "selectin"},
-    )
+    #
+    # comments: list[Comment] = Relationship(
+    #     back_populates="listing",
+    #     sa_relationship_kwargs={"lazy": "selectin"},
+    # )

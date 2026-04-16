@@ -2,11 +2,11 @@ from uuid import UUID, uuid4
 
 from pydantic import EmailStr
 from sqlalchemy.dialects import postgresql
-from sqlmodel import Column, Field, Relationship
-from typing import TYPE_CHECKING
+from sqlmodel import Column, Field
+# from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from app.repositories.models.listing import Listing
+# if TYPE_CHECKING:
+#     from app.repositories.models.listing import Listing
 
 from .base import Base
 
@@ -31,9 +31,10 @@ class User(Base, table=True):
     full_name: str = Field(max_length=64)
     phone: str | None = None
 
-    listings: list["Listing"] = Relationship(
-        back_populates="seller",
-        sa_relationship_kwargs={
-            "lazy": "selectin",
-        },
-    )
+    # listings: list["Listing"] = Relationship(
+    #     back_populates="seller",
+    #     sa_relationship_kwargs={
+    #         "lazy": "selectin",
+    #         "foreign_keys": "[Listing.id]",
+    #     },
+    # )
