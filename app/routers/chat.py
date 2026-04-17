@@ -6,6 +6,7 @@ from app.core.dependencies import (
     ChatRepositoryDep,
     MessageRepositoryDep,
     CurrentUserDep,
+    UserRepositoryDep,
 )
 from app.schemas.user_read import UserRead
 from app.schemas.message import (
@@ -24,20 +25,24 @@ from app.schemas.chat import (
 from app.services.message import MessageService
 from app.services.chat import ChatService
 
-router = APIRouter(prefix="/chats")
+router = APIRouter(prefix="/chats", tags=["Chat"])
 
 
 ######### chat service dependency
-async def get_chat_service(repo: ChatRepositoryDep) -> ChatService:
-    return ChatService(repo)
+async def get_chat_service(
+    repo: ChatRepositoryDep, user_repo: UserRepositoryDep
+) -> ChatService:
+    return ChatService(repo, user_repo)
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
 
 
 ######### message service dependency
-async def get_message_service(repo: MessageRepositoryDep) -> MessageService:
-    return MessageService(repo)
+async def get_message_service(
+    repo: MessageRepositoryDep, chat_repo: ChatRepositoryDep
+) -> MessageService:
+    return MessageService(repo, chat_repo)
 
 
 MessageServiceDep = Annotated[MessageService, Depends(get_message_service)]
@@ -52,7 +57,7 @@ async def create_chat(
 ):
     return await service.create_chat(
         name=body.name,
-        user_id=current_user,
+        keycloak_id=current_user.keycloak_id,
         participant_ids=body.participant_ids,
     )
 
@@ -63,7 +68,7 @@ async def get_chats(
     current_user: CurrentUserDep,
 ):
     return await service.get_chats(
-        user_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
     )
 
 
@@ -75,7 +80,7 @@ async def get_chat(
 ):
     return await service.get_chat(
         chat_id=chat_id,
-        user_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
     )
 
 
@@ -88,7 +93,7 @@ async def update_chat(
 ):
     return await service.update_chat(
         chat_id=chat_id,
-        user_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
         name=body.name,
     )
 
@@ -101,7 +106,7 @@ async def delete_chat(
 ):
     return await service.delete_chat(
         chat_id=chat_id,
-        user_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
     )
 
 
@@ -115,7 +120,7 @@ async def mark_chat_as_read(  # current user opens chat == current user read all
     return await service.mark_chat_read(
         chat_id=chat_id,
         is_chat_read=body.is_chat_read,
-        user_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
     )
 
 
@@ -129,7 +134,7 @@ async def create_message_in_chat(
 ):
     return await service.create_message_in_chat(
         chat_id=chat_id,
-        sender_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
         content=body.content,
     )
 
@@ -140,7 +145,7 @@ async def get_messages_in_chat(
 ):
     return await service.get_messages_in_chat(
         chat_id=chat_id,
-        sender_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
     )
 
 
@@ -154,7 +159,7 @@ async def get_message_in_chat(
     return await service.get_message_in_chat(
         chat_id=chat_id,
         message_id=message_id,
-        sender_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
     )
 
 
@@ -169,7 +174,7 @@ async def update_message_in_chat(
     return await service.update_message_in_chat(
         chat_id=chat_id,
         message_id=message_id,
-        sender_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
         content=body.content,
     )
 
@@ -186,7 +191,7 @@ async def delete_message_in_chat(
     return await service.delete_message_in_chat(
         chat_id=chat_id,
         message_id=message_id,
-        sender_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
     )
 
 
@@ -200,5 +205,5 @@ async def get_users_who_read_message(  # see who has read the message
     return await service.get_users_who_read_message(
         chat_id=chat_id,
         message_id=message_id,
-        user_id=current_user.id,
+        keycloak_id=current_user.keycloak_id,
     )

@@ -17,7 +17,7 @@ class ChatUpdate(BaseModel):
 
 
 class ChatResponse(ChatBase):
-    chat_id: UUID
+    id: UUID
     # created_at: datetime
     # updated_at: datetime
     # created_by: UUID
