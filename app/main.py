@@ -6,10 +6,14 @@ from app.routers.master_router import master_router
 from app.services.exceptions.listing_already_exists import ListingAlreadyExists
 from app.services.exceptions.listing_delete_permission import ListingDeletePermission
 from app.services.exceptions.listing_not_found import ListingNotFound
+from app.services.exceptions.comment import add_exception_handlers
 
 app = FastAPI()
 
+add_exception_handlers(app=app)
+
 app.include_router(master_router)
+
 
 app.swagger_ui_init_oauth = {
     "clientId": "used-car-backend",

@@ -8,6 +8,12 @@ from ..repositories.user import UserRepository
 from app.repositories.models.comment import Comment
 from app.schemas.comment import CommentCreate, CommentUpdate
 from app.repositories.models.user import User
+from .exceptions.comment import (
+    CommentNotFound,
+    NotCommentAuthorDelete,
+    NotCommentAuthorUpdate,
+)
+from .exceptions.listing_not_found import ListingNotFound
 
 
 class CommentService:
@@ -45,10 +51,7 @@ class CommentService:
         comment = await self.comment_repo.find_by(id)
 
         if comment is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Comment not found",
-            )
+            raise CommentNotFound()
 
         return comment
 
@@ -70,10 +73,7 @@ class CommentService:
         listing = await self.listing_repo.find_by(listing_id)
 
         if listing is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Listing doesn't exist",
-            )
+            raise ListingNotFound(listing_id)
 
         current_user = await self.user_repo.find_by_keycloak_id(user.keycloak_id)
 
@@ -109,18 +109,12 @@ class CommentService:
         comment = await self.comment_repo.find_by(comment_id)
 
         if comment is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Comment doesn't exist",
-            )
+            raise CommentNotFound()
 
         current_user = await self.user_repo.find_by_keycloak_id(user.keycloak_id)
 
         if comment.user_fk != current_user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Comment can change only its author",
-            )
+            raise NotCommentAuthorUpdate()
 
         comment.content = new_content.content
 
@@ -141,10 +135,7 @@ class CommentService:
         comment = await self.comment_repo.find_by(id)
 
         if comment is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Comment doesn't exist",
-            )
+            raise CommentNotFound()
 
         current_user = await self.user_repo.find_by_keycloak_id(user.keycloak_id)
 
@@ -155,9 +146,6 @@ class CommentService:
             )
 
         if current_user.id != comment.user_fk:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Comment can delete only its owner!",
-            )
+            raise NotCommentAuthorDelete()
 
         return await self.comment_repo.delete(comment)
