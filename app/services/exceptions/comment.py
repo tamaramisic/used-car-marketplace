@@ -1,23 +1,16 @@
-from fastapi import FastAPI, status
-from fastapi.requests import Request
-from fastapi.responses import JSONResponse
+from fastapi import status
+from .base import AppException
 
 
-class CommentException(Exception):
+class CommentException(AppException):
     """Base exception for all exceptions in the comment service"""
-
-    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    detail = "An unexpected error occurred"
 
 
 class CommentNotFound(CommentException):
     """Comment not found in the database"""
 
     status_code = status.HTTP_404_NOT_FOUND
-
-    def __init__(self):
-        self.detail = "Comment doesn't exist"
-        super().__init__(self.detail)
+    detail = "Comment doesn't exist"
 
 
 class NotCommentAuthor(CommentException):
@@ -27,7 +20,7 @@ class NotCommentAuthor(CommentException):
 
     def __init__(self, action: str = "modify"):
         self.detail = f"Only the author can {action} a comment"
-        super().__init__(self.detail)
+        super().__init__(detail=self.detail)
 
 
 class NotCommentAuthorUpdate(NotCommentAuthor):
@@ -42,14 +35,3 @@ class NotCommentAuthorDelete(NotCommentAuthor):
 
     def __init__(self):
         super().__init__(action="delete")
-
-
-def comment_exception_handler(request: Request, exc: CommentException):
-    return JSONResponse(
-        status_code=getattr(exc, "status_code", 400),
-        content={"detail": getattr(exc, "detail", str(exc))},
-    )
-
-
-def add_exception_handlers(app: FastAPI):
-    app.add_exception_handler(CommentException, comment_exception_handler)

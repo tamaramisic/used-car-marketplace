@@ -20,7 +20,11 @@ async def get_comment_by_id(comment_id: UUID, service: CommentServiceDep):
     return await service.find_comment_by_id(comment_id)
 
 
-@router.post("/listings/{listing_id}/comments", response_model=CommentRead)
+@router.post(
+    "/listings/{listing_id}/comments",
+    response_model=CommentRead,
+    status_code=status.HTTP_201_CREATED,
+)
 async def add_new_comment(
     listing_id: UUID,
     req_body: CommentCreate,
@@ -41,10 +45,8 @@ async def edit_comment(
     return await service.update_comment(comment_id, new_content, user)
 
 
-@router.delete("/comments/{comment_id}", response_model=bool)
+@router.delete("/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_comment(
     comment_id: UUID, user: CurrentUserDep, service: CommentServiceDep
 ):
     await service.delete_comment(comment_id, user)
-
-    return status.HTTP_204_NO_CONTENT

@@ -145,7 +145,7 @@ class CommentService:
                 detail="User doesn't exist",
             )
 
-        if current_user.id != comment.user_fk:
+        if current_user.id != comment.user_fk and "admin" not in user.roles:
             raise NotCommentAuthorDelete()
 
         return await self.comment_repo.delete(comment)
