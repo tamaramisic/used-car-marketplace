@@ -1,7 +1,5 @@
 from uuid import UUID
 
-from fastapi import status
-from fastapi.exceptions import HTTPException
 from ..repositories.comment import CommentRepository
 from ..repositories.listing import ListingRepository
 from ..repositories.user import UserRepository
@@ -14,6 +12,7 @@ from .exceptions.comment import (
     NotCommentAuthorUpdate,
 )
 from .exceptions.listing_not_found import ListingNotFound
+from .exceptions.user import UserNotFound
 
 
 class CommentService:
@@ -78,10 +77,7 @@ class CommentService:
         current_user = await self.user_repo.find_by_keycloak_id(user.keycloak_id)
 
         if current_user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_BAD_REQUEST,
-                detail="User doesn't exist",
-            )
+            raise UserNotFound()
 
         new_comment = Comment(
             content=req_body.content,
@@ -140,10 +136,7 @@ class CommentService:
         current_user = await self.user_repo.find_by_keycloak_id(user.keycloak_id)
 
         if current_user is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User doesn't exist",
-            )
+            raise UserNotFound()
 
         if current_user.id != comment.user_fk and "admin" not in user.roles:
             raise NotCommentAuthorDelete()
