@@ -1,12 +1,14 @@
 from typing import List
 from uuid import UUID
-from fastapi import HTTPException
 from app.repositories.models import User
 from app.repositories.models.listing import Listing
 from app.repositories.listing import ListingRepository
 from app.repositories.user import UserRepository
 from app.schemas.listing.listing_save import ListingSave
 from app.schemas.listing.listing_update import ListingUpdate
+from app.services.exceptions.listing_already_exists import ListingAlreadyExists
+from app.services.exceptions.listing_delete_permission import ListingDeletePermission
+from app.services.exceptions.listing_not_found import ListingNotFound
 
 
 class ListingService:
@@ -34,9 +36,7 @@ class ListingService:
         """
         listing = await self.repo.find_by(listing_id)
         if not listing:
-            raise HTTPException(
-                status_code=404, detail=f"Listing with {listing_id} not found"
-            )
+            raise ListingNotFound(listing_id)
 
         return listing
 
@@ -58,10 +58,7 @@ class ListingService:
         listing = await self.repo.find_by_title(listing_schema.title)
 
         if listing:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Listing with a title:{listing_schema.title} already exists!",
-            )
+            raise ListingAlreadyExists(listing.title)
 
         user = await user_repo.find_by_keycloak_id(current_user.keycloak_id)
         listing_model = Listing(**listing_schema.model_dump())
@@ -137,9 +134,7 @@ class ListingService:
         listing = await self.repo.find_by(listing_id)
 
         if not listing:
-            raise HTTPException(
-                status_code=404, detail=f"Listing with {listing_id} not found"
-            )
+            raise ListingNotFound(listing_id)
 
         user = await user_repo.find_by_keycloak_id(current_user.keycloak_id)
 
@@ -148,8 +143,6 @@ class ListingService:
             if "admin" in current_user.roles:
                 return listing
 
-            raise HTTPException(
-                status_code=403, detail="User can't delete other user's listings"
-            )
+            raise ListingDeletePermission("User can't delete other user's listings")
 
         return listing
