@@ -1,7 +1,7 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from app.core.dependencies import CommentServiceDep, CurrentUserDep, get_current_user
-from ..schemas.comment import BaseComment, CommentCreate, CommentRead
+from ..schemas.comment import CommentCreate, CommentRead, CommentUpdate
 
 router = APIRouter(tags=["Comment"])
 
@@ -20,10 +20,10 @@ async def get_comment_by_id(comment_id: UUID, service: CommentServiceDep):
     return await service.find_comment_by_id(comment_id)
 
 
-@router.post("/listings/{listing_id}/comments", response_model=CommentCreate)
+@router.post("/listings/{listing_id}/comments", response_model=CommentRead)
 async def add_new_comment(
     listing_id: UUID,
-    req_body: BaseComment,
+    req_body: CommentCreate,
     user: CurrentUserDep,
     service: CommentServiceDep,
 ):
@@ -31,8 +31,20 @@ async def add_new_comment(
     return comment
 
 
+@router.patch("/comments/{comment_id}", response_model=CommentRead)
+async def edit_comment(
+    comment_id: UUID,
+    new_content: CommentUpdate,
+    user: CurrentUserDep,
+    service: CommentServiceDep,
+):
+    return await service.update_comment(comment_id, new_content, user)
+
+
 @router.delete("/comments/{comment_id}", response_model=bool)
 async def delete_comment(
     comment_id: UUID, user: CurrentUserDep, service: CommentServiceDep
 ):
-    return await service.delete_comment(comment_id, user)
+    await service.delete_comment(comment_id, user)
+
+    return status.HTTP_204_NO_CONTENT

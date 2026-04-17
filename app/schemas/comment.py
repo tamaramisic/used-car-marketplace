@@ -1,9 +1,10 @@
 from uuid import UUID
 from pydantic import BaseModel
+from sqlmodel import Field
 
 
 class BaseComment(BaseModel):
-    content: str
+    content: str = Field(min_length=1, max_length=500)
 
 
 class CommentRead(BaseComment):
@@ -13,5 +14,8 @@ class CommentRead(BaseComment):
 
 
 class CommentCreate(BaseComment):
-    id: UUID
-    listing_fk: UUID
+    pass
+
+
+class CommentUpdate(BaseComment):
+    pass

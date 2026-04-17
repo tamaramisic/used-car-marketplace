@@ -6,7 +6,7 @@ from ..repositories.comment import CommentRepository
 from ..repositories.listing import ListingRepository
 from ..repositories.user import UserRepository
 from app.repositories.models.comment import Comment
-from app.schemas.comment import BaseComment
+from app.schemas.comment import CommentCreate, CommentUpdate
 from app.repositories.models.user import User
 
 
@@ -22,9 +22,26 @@ class CommentService:
         self.user_repo = user_repo
 
     async def find_all_comments(self) -> list[Comment]:
+        """
+        Gets all comments from a database
+
+        Returns:
+        List of Comment sql model
+        """
+
         return await self.comment_repo.find_all()
 
     async def find_comment_by_id(self, id: UUID) -> Comment:
+        """
+        Gets a Comment with the given id
+
+        Args:
+            id: UUID of Comment sql model
+
+        Returns:
+            Comment sql model
+        """
+
         comment = await self.comment_repo.find_by(id)
 
         if comment is None:
@@ -36,13 +53,19 @@ class CommentService:
         return comment
 
     async def create_comment(
-        self, listing_id: UUID, req_body: BaseComment, user: User
+        self, listing_id: UUID, req_body: CommentCreate, user: User
     ) -> Comment:
-        if not req_body.content:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Comment cannot be an empty string",
-            )
+        """
+        Checks if listing with the given id exists and raises exception if not, checks if user exists in our database and raises exception if not, creates new Comment if everything is ok
+
+        Args:
+            listing_id: UUID of the Listing for which the comment is being created
+            req_body: pydantic schema of the Comment being created
+            user: sql model of the User creating the coment
+
+        Returns:
+            Newly created Comment sql model
+        """
 
         listing = await self.listing_repo.find_by(listing_id)
 
@@ -69,11 +92,52 @@ class CommentService:
         return await self.comment_repo.create(new_comment)
 
     async def update_comment(
-        self, comment_id: UUID, new_comment: dict
-    ) -> Comment | None:
-        return await self.comment_repo.update(comment_id, new_comment)
+        self, comment_id: UUID, new_content: CommentUpdate, user: User
+    ) -> Comment:
+        """
+        Updates the content attribute of the comment with the passed id. Raises an exception if the comment doesn't exist. Only the author can update a comment
+
+        Args:
+            comment_id: UUID of the Comment for which the content is being updated
+            new_content: pydantic schema of the Comment being updated
+            user: sql model of the User updating the coment
+
+        Returns:
+            Comment sql model
+        """
+
+        comment = await self.comment_repo.find_by(comment_id)
+
+        if comment is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Comment doesn't exist",
+            )
+
+        current_user = await self.user_repo.find_by_keycloak_id(user.keycloak_id)
+
+        if comment.user_fk != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Comment can change only its author",
+            )
+
+        comment.content = new_content.content
+
+        return await self.comment_repo.update(comment)
 
     async def delete_comment(self, id: UUID, user: User) -> bool:
+        """
+        Checks if Comment exists with a given id, then deletes it from the database. Only the author can delete a comment.
+
+        Args:
+            id: UUID of the Comment being deleted
+            user: sql model of the User deleting the coment
+
+        Returns:
+            /
+        """
+
         comment = await self.comment_repo.find_by(id)
 
         if comment is None:
